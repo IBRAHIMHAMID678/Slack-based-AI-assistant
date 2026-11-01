@@ -47,6 +47,13 @@ ROUTING_TABLE: dict[str, TaskRoute] = {
         fallback_model="meta-llama/llama-3.1-8b-instruct:free",
         temperature=0.1,
     ),
+    "conversational_qa": TaskRoute(
+        primary_provider="groq",
+        primary_model="llama-3.3-70b-versatile",
+        fallback_provider="openrouter",
+        fallback_model="meta-llama/llama-3.3-70b-instruct:free",
+        temperature=0.2,
+    ),
     "query_rewrite": TaskRoute(
         primary_provider="groq",
         primary_model="llama-3.1-8b-instant",
