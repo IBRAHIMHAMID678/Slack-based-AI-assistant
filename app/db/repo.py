@@ -104,21 +104,45 @@ class ProfileRepository:
         self.db = db
 
     def save_or_update(self, session_id: str, data: dict[str, Any]) -> ClientProfile:
-        """Save new client profile or update existing one for a session."""
+        """Save new client profile or merge/update existing one for a session."""
         stmt = select(ClientProfile).where(ClientProfile.session_id == session_id)
         profile = self.db.execute(stmt).scalar_one_or_none()
         if not profile:
             profile = ClientProfile(profile_id=str(uuid.uuid4()), session_id=session_id)
             self.db.add(profile)
 
-        profile.company_name = data.get("company_name")
-        profile.industry = data.get("industry")
-        profile.problem = data.get("problem")
-        profile.goals_json = json.dumps(data.get("goals", []))
-        profile.budget = data.get("budget")
-        profile.timeline = data.get("timeline")
-        profile.stakeholders_json = json.dumps(data.get("stakeholders", []))
-        profile.missing_fields_json = json.dumps(data.get("missing_fields", []))
+        # Preserve previously extracted values if new upload does not restate them
+        if data.get("company_name"):
+            profile.company_name = data.get("company_name")
+        if data.get("industry"):
+            profile.industry = data.get("industry")
+        if data.get("problem"):
+            profile.problem = data.get("problem")
+        if data.get("budget"):
+            profile.budget = data.get("budget")
+        if data.get("timeline"):
+            profile.timeline = data.get("timeline")
+
+        # Merge goals without duplicates
+        existing_goals = json.loads(profile.goals_json or "[]")
+        new_goals = data.get("goals", [])
+        combined_goals = list(dict.fromkeys(existing_goals + new_goals))
+        profile.goals_json = json.dumps(combined_goals)
+
+        # Merge stakeholders without duplicates
+        existing_stakeholders = json.loads(profile.stakeholders_json or "[]")
+        new_stakeholders = data.get("stakeholders", [])
+        combined_stakeholders = list(dict.fromkeys(existing_stakeholders + new_stakeholders))
+        profile.stakeholders_json = json.dumps(combined_stakeholders)
+
+        # Update missing fields (remove any field that now has a value)
+        existing_missing = set(data.get("missing_fields", []))
+        if profile.budget:
+            existing_missing.discard("budget")
+        if profile.timeline:
+            existing_missing.discard("timeline")
+        profile.missing_fields_json = json.dumps(list(existing_missing))
+
         profile.ambiguities_json = json.dumps(data.get("ambiguities", []))
 
         self.db.commit()
