@@ -508,26 +508,50 @@ class ProposalOrchestrator:
 
             answer = ""
             # 1. Stakeholders / People questions
-            if any(q in msg_lower for q in ["who is jenny", "who's jenny", "about jenny"]):
+            if any(
+                q in msg_lower
+                for q in [
+                    "who is jenny",
+                    "who's jenny",
+                    "about jenny",
+                    "who is jeeny",
+                    "who's jeeny",
+                    "who is jeni",
+                    "who's jeni",
+                    "jenny",
+                    "jeeny",
+                ]
+            ):
                 answer = (
                     "**Jenny Tran** is the **Operations Manager** at Brightline Retail Group.\n"
                     "• She oversees day-to-day warehouse operations across Chicago, Dallas, and Phoenix.\n"
                     "• She joined the call to represent the warehouse floor operations team and staff workflow.\n"
                     "• She emphasized avoiding a high-risk 'rip-and-replace' of Raj's software, and cited Q4 as the realistic landing date."
                 )
-            elif any(q in msg_lower for q in ["who is marcus", "who's marcus", "about marcus"]):
+            elif any(
+                q in msg_lower
+                for q in [
+                    "who is marcus",
+                    "who's marcus",
+                    "about marcus",
+                    "who is markus",
+                    "marcus",
+                ]
+            ):
                 answer = (
                     "**Marcus Webb** is the **Chief Executive Officer (CEO)** of Brightline Retail Group.\n"
                     "• He led the strategic discussion regarding multi-warehouse visibility ahead of the Atlanta and Seattle site openings.\n"
                     "• He confirmed the baseline $50,000 budget signed off by the board (with flexibility up to $120,000) and targeted a Q3 go-live."
                 )
-            elif any(q in msg_lower for q in ["who is raj", "who's raj", "about raj"]):
+            elif any(q in msg_lower for q in ["who is raj", "who's raj", "about raj", "raj"]):
                 answer = (
                     "**Raj** is Brightline's **in-house software developer**.\n"
                     "• He developed the custom 2019 inventory tool currently running in their facilities.\n"
                     "• Preserving Raj's custom endpoints and partnering with him rather than discarding his work is a primary client requirement."
                 )
-            elif any(q in msg_lower for q in ["who is sarah", "who's sarah", "about sarah"]):
+            elif any(
+                q in msg_lower for q in ["who is sarah", "who's sarah", "about sarah", "sarah"]
+            ):
                 answer = "**Sarah Okafor** is the **Senior Operations Consultant** leading the client discovery call and authoring the consulting proposal for Brightline Retail Group."
             elif any(
                 q in msg_lower

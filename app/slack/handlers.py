@@ -106,6 +106,10 @@ def register_slack_handlers(bolt_app: AsyncApp, orchestrator: Any) -> None:
         ]:
             return
 
+        # If message contains an @mention, let handle_app_mention handle it
+        if "<@" in event.get("text", ""):
+            return
+
         channel_id = event.get("channel", "")
         thread_ts = event.get("thread_ts") or event.get("ts", "")
         user_id = event.get("user", "")
