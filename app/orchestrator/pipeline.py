@@ -26,7 +26,6 @@ from app.docx.renderer import render_proposal_docx
 from app.logging import get_logger
 from app.orchestrator.state import enforce_transcript_bounds, session_guard
 from app.rag.ingest import compute_sha256, ingest_runtime_transcript
-from app.rag.retrieve import retrieve_transcript_quotes
 from app.slack.blocks import (
     build_draft_review_card,
     build_profile_summary_card,
@@ -377,7 +376,7 @@ class ProposalOrchestrator:
                 if channel_prof:
                     profile = channel_prof
 
-            quotes = retrieve_transcript_quotes(session.session_id, message_text, top_k=2)
+            # Transcript retrieval handled dynamically by ConversationalQAAgent
 
             # Check if user requested a section revision via chat (e.g. 'make the timeline section more detailed')
             msg_lower = message_text.lower()
@@ -506,131 +505,17 @@ class ProposalOrchestrator:
                     )
                     return "🎉 *Proposal Approved!* Delivered your finalized DOCX proposal to the thread above."
 
-            answer = ""
-            # 1. Stakeholders / People questions
-            if any(
-                q in msg_lower
-                for q in [
-                    "who is jenny",
-                    "who's jenny",
-                    "about jenny",
-                    "who is jeeny",
-                    "who's jeeny",
-                    "who is jeni",
-                    "who's jeni",
-                    "jenny",
-                    "jeeny",
-                ]
-            ):
-                answer = (
-                    "**Jenny Tran** is the **Operations Manager** at Brightline Retail Group.\n"
-                    "• She oversees day-to-day warehouse operations across Chicago, Dallas, and Phoenix.\n"
-                    "• She joined the call to represent the warehouse floor operations team and staff workflow.\n"
-                    "• She emphasized avoiding a high-risk 'rip-and-replace' of Raj's software, and cited Q4 as the realistic landing date."
-                )
-            elif any(
-                q in msg_lower
-                for q in [
-                    "who is marcus",
-                    "who's marcus",
-                    "about marcus",
-                    "who is markus",
-                    "marcus",
-                ]
-            ):
-                answer = (
-                    "**Marcus Webb** is the **Chief Executive Officer (CEO)** of Brightline Retail Group.\n"
-                    "• He led the strategic discussion regarding multi-warehouse visibility ahead of the Atlanta and Seattle site openings.\n"
-                    "• He confirmed the baseline $50,000 budget signed off by the board (with flexibility up to $120,000) and targeted a Q3 go-live."
-                )
-            elif any(q in msg_lower for q in ["who is raj", "who's raj", "about raj", "raj"]):
-                answer = (
-                    "**Raj** is Brightline's **in-house software developer**.\n"
-                    "• He developed the custom 2019 inventory tool currently running in their facilities.\n"
-                    "• Preserving Raj's custom endpoints and partnering with him rather than discarding his work is a primary client requirement."
-                )
-            elif any(
-                q in msg_lower for q in ["who is sarah", "who's sarah", "about sarah", "sarah"]
-            ):
-                answer = "**Sarah Okafor** is the **Senior Operations Consultant** leading the client discovery call and authoring the consulting proposal for Brightline Retail Group."
-            elif any(
-                q in msg_lower
-                for q in ["stakeholder", "participants", "who was on the call", "attendees"]
-            ):
-                answer = (
-                    "The key discovery call participants and stakeholders are:\n"
-                    "• **Marcus Webb** — CEO, Brightline Retail Group\n"
-                    "• **Jenny Tran** — Operations Manager, Brightline Retail Group\n"
-                    "• **Sarah Okafor** — Senior Operations Consultant\n"
-                    "• *(Referenced)* **Raj** — In-house Software Developer"
-                )
-            # 2. Date / Discovery Call Event
-            elif any(
-                q in msg_lower
-                for q in ["may 14", "what happened on may 14", "when was the call", "meeting date"]
-            ):
-                answer = (
-                    "On **May 14, 2026**, the initial client discovery call took place between Sarah Okafor (Consultant), "
-                    "Marcus Webb (CEO), and Jenny Tran (Operations Manager).\n"
-                    "During the session, they evaluated Brightline's multi-warehouse synchronization challenges, "
-                    "QuickBooks/Shopify integrations, target Q3 launch, and $50,000–$120,000 budget framework."
-                )
-            # 3. Timeline / Deadline
-            elif "deadline" in msg_lower or "timeline" in msg_lower:
-                answer = (
-                    "Based on the transcript:\n"
-                    "• Marcus Webb: *'Realistically before we open Atlanta... targeting Q1 next year for Atlanta. "
-                    "So I guess we'd need the system stable by end of Q3 this year? That's roughly five months from now.'*\n"
-                    "• Jenny Tran: *'That might be tight. I've been saying Q4 is probably more realistic.'*\n"
-                    "The agreed approach targets Q3 with Q4 confirmed fallback."
-                )
-            # 4. Budget / Cost
-            elif "budget" in msg_lower or "cost" in msg_lower:
-                answer = (
-                    "Regarding budget:\n"
-                    "• Marcus Webb stated the baseline target is *$50,000*, signed off by the board.\n"
-                    "• Jenny Tran noted the board approved a flexibility range up to *$120,000* if scope warrants."
-                )
-            # 5. Warehouses / Locations
-            elif any(w in msg_lower for w in ["warehouse", "location", "facility", "facilities"]):
-                answer = (
-                    "Brightline currently operates three active warehouse facilities:\n"
-                    "• **Chicago, Dallas, and Phoenix** (housing 140 staff across wholesale and direct-to-consumer).\n"
-                    "Upcoming planned expansions include **Atlanta** (opening Q1 next year) and **Seattle**."
-                )
-            # 6. Integrations & Systems
-            elif any(
-                w in msg_lower for w in ["integration", "quickbooks", "shopify", "legacy", "tools"]
-            ):
-                answer = (
-                    "Core integrations discussed on the call include:\n"
-                    "• **QuickBooks:** Automated accounting & inventory valuation sync.\n"
-                    "• **Shopify:** Real-time stock decrementing for D2C orders (20% of volume).\n"
-                    "• **Raj's Custom In-House Tool:** Wrapped with secure endpoints to avoid rip-and-replace.\n"
-                    "• **Carrier Shipping Software:** Pluggable interface once carrier selection is finalized."
-                )
-            # 7. General Questions / Excerpt Synthesis
-            elif quotes:
-                clean_chunk = quotes[0]["document"].replace("##", "").replace("---", "").strip()
-                clean_chunk = "\n".join(
-                    line_item.strip() for line_item in clean_chunk.splitlines() if line_item.strip()
-                )
-                answer = (
-                    f"Based on the discovery transcript regarding your question:\n\n"
-                    f'> "{clean_chunk[:300]}..."\n\n'
-                    f"*Would you like me to incorporate this detail into a specific section of the proposal?*"
-                )
-            elif not profile and not quotes:
-                answer = (
-                    "👋 Welcome! I am your AI Proposal Assistant.\n\n"
-                    "To generate a tailored client proposal, please upload a discovery call transcript (`.txt` file) to this channel or thread.\n"
-                    "Once uploaded, I will extract client facts, search past proposals for relevant architecture, and draft a multi-section proposal for your review."
-                )
-            else:
-                answer = (
-                    f"I have recorded your feedback. Current profile status: {profile.company_name if profile else 'Active Session'}. "
-                    "Would you like to revise a specific section or approve the current draft?"
-                )
+            from app.agents.qa import ConversationalQAAgent
+
+            qa_agent = ConversationalQAAgent()
+            effective_session_id = (
+                profile.session_id if (profile and profile.session_id) else session.session_id
+            )
+            answer = await qa_agent.answer_question(
+                query=message_text,
+                session_id=effective_session_id,
+                profile=profile,
+            )
 
             msg_repo.add_message(session.session_id, "assistant", "assistant", answer)
             return answer
