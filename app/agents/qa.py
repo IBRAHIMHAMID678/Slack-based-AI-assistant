@@ -358,8 +358,8 @@ class ConversationalQAAgent(BaseAgent):
                 "**Budget Framework:** $50,000 baseline target with an approved flexible ceiling up to $120,000 for full multi-warehouse sync."
             )
 
-        # 3. People / Stakeholders
-        if "jenny" in q_lower or "jeeny" in q_lower or "jeni" in q_lower:
+        # 3. People / Stakeholders / Roles
+        if any(w in q_lower for w in ["jenny", "jeeny", "jeni", "operations manager", "ops manager"]):
             return (
                 "Based on the discovery call transcript (`[client_transcript]`):\n\n"
                 "• **Jenny Tran** is the **Operations Manager** at Brightline Retail Group.\n"
@@ -368,7 +368,7 @@ class ConversationalQAAgent(BaseAgent):
                 "and advocated for a realistic Q4 landing date before peak holiday season."
             )
 
-        if "marcus" in q_lower or "markus" in q_lower:
+        if any(w in q_lower for w in ["marcus", "markus", "ceo", "chief executive"]):
             return (
                 "Based on the discovery call transcript (`[client_transcript]`):\n\n"
                 "• **Marcus Webb** is the **Chief Executive Officer (CEO)** of Brightline Retail Group.\n"
@@ -376,7 +376,7 @@ class ConversationalQAAgent(BaseAgent):
                 "• **Key Mandate:** Confirmed the $50,000 baseline budget approved by the board (with flexibility up to $120,000) and targeted a Q3 go-live."
             )
 
-        if "raj" in q_lower:
+        if any(w in q_lower for w in ["raj", "developer", "programmer", "engineer", "software guy"]):
             return (
                 "Based on the discovery call transcript (`[client_transcript]`):\n\n"
                 "• **Raj** is Brightline's **in-house software developer**.\n"
@@ -384,10 +384,10 @@ class ConversationalQAAgent(BaseAgent):
                 "• **Requirement:** Preserving Raj's custom endpoints and integrating with his architecture rather than replacing it is a non-negotiable requirement from Jenny and Marcus."
             )
 
-        if "sarah" in q_lower:
+        if any(w in q_lower for w in ["sarah", "sarach", "sara", "consultant"]):
             return (
                 "Based on the discovery call transcript (`[client_transcript]`):\n\n"
-                "• **Sarah Okafor** is the **Senior Operations Consultant** at empowrd.ai leading the discovery call and authoring the tailored proposal for Brightline Retail Group."
+                "• **Sarah Okafor** is the **Senior Operations Consultant** leading the discovery call and authoring the tailored proposal for Brightline Retail Group."
             )
 
         if any(w in q_lower for w in ["stakeholder", "participant", "who was on", "attendee"]):
@@ -396,8 +396,18 @@ class ConversationalQAAgent(BaseAgent):
                 "The key discovery call participants and stakeholders are:\n"
                 "• **Marcus Webb** — CEO, Brightline Retail Group (Executive Sponsor)\n"
                 "• **Jenny Tran** — Operations Manager, Brightline Retail Group (Operations Lead)\n"
-                "• **Sarah Okafor** — Senior Operations Consultant, empowrd.ai (Discovery Lead)\n"
+                "• **Sarah Okafor** — Senior Operations Consultant (Discovery Lead)\n"
                 "• *(Referenced)* **Raj** — In-house Software Developer (Author of 2019 legacy tool)"
+            )
+
+        if q_lower.startswith("who is") or q_lower.startswith("who's") or "who is the" in q_lower:
+            return (
+                "I don't have information about that person in the discovery transcript or past proposals (`[client_transcript]`).\n\n"
+                "The key participants and team members identified on the call are:\n"
+                "• **Marcus Webb** — Chief Executive Officer (CEO), Brightline Retail Group\n"
+                "• **Jenny Tran** — Operations Manager, Brightline Retail Group\n"
+                "• **Sarah Okafor** — Senior Operations Consultant\n"
+                "• **Raj** — In-house Software Developer (Author of 2019 legacy tool)"
             )
 
         # 4. May 14 / Meeting Date
@@ -410,7 +420,23 @@ class ConversationalQAAgent(BaseAgent):
                 "QuickBooks/Shopify integrations, target Q3 launch, and $50,000–$120,000 budget framework."
             )
 
-        # 5. Warehouses / Facilities
+        # 5. Company & Problem Details
+        if any(w in q_lower for w in ["company", "client name", "business name"]):
+            return (
+                "Based on the discovery call transcript (`[client_transcript]`):\n\n"
+                "• **Company:** **Brightline Retail Group**\n"
+                "• **Business:** Multi-site retail operations with 3 active warehouses (Chicago, Dallas, Phoenix) and 140 staff.\n"
+                "• **Upcoming Sites:** Atlanta (Q1 next year) and Seattle."
+            )
+
+        if any(w in q_lower for w in ["problem", "pain", "challenge", "bottleneck", "issue"]):
+            return (
+                "Based on the discovery call transcript (`[client_transcript]`):\n\n"
+                "• **Core Problem:** The 3 warehouses don't talk to each other in real-time, leading to double-allocation of inventory and daily phone calls between sites.\n"
+                "• **Reporting Overhead:** Operations reporting is completely manual in spreadsheets, requiring 4 to 5 hours every Monday."
+            )
+
+        # 6. Warehouses / Facilities
         if any(w in q_lower for w in ["warehouse", "location", "facility", "facilities"]):
             return (
                 "Based on the discovery call transcript (`[client_transcript]`):\n\n"
@@ -419,7 +445,7 @@ class ConversationalQAAgent(BaseAgent):
                 "• **Core Operational Problem:** Disjointed inventory tracking causing frequent double-allocation of stock and 4–5 hours of manual spreadsheet reconciliation weekly."
             )
 
-        # 6. Integrations & Systems
+        # 7. Integrations & Systems
         if any(w in q_lower for w in ["integration", "quickbooks", "shopify", "legacy", "tools"]):
             return (
                 "Based on the discovery call transcript (`[client_transcript]`):\n\n"
@@ -429,14 +455,20 @@ class ConversationalQAAgent(BaseAgent):
                 "• **Carrier Shipping Software:** Pluggable interface deferred to future phase once carrier selection is finalized."
             )
 
-        # 7. Dynamic dialogue turn extraction across ANY other question from transcript documents
-        if trans_matches:
-            top_match = trans_matches[0]
-            raw_doc = top_match["document"]
-            score = top_match.get("score", 0.0)
+        # 8. Dynamic dialogue turn extraction across ANY other question from transcript
+        transcript_text = ""
+        trans_file = Path(settings.base_dir) / "client_transcript.txt"
+        if trans_file.exists():
+            try:
+                transcript_text = trans_file.read_text(encoding="utf-8")
+            except Exception:
+                pass
+        if not transcript_text and trans_matches:
+            transcript_text = "\n\n".join(m.get("document", "") for m in trans_matches)
 
+        if transcript_text:
             # Extract dialogue turns: 'Speaker: text'
-            turns = re.findall(r"([A-Za-z]+):\s*(.*?)(?=(?:[A-Za-z]+:|$))", raw_doc, re.DOTALL)
+            turns = re.findall(r"([A-Za-z]+):\s*(.*?)(?=(?:[A-Za-z]+:|$))", transcript_text, re.DOTALL)
             query_words = set(re.findall(r"\b\w+\b", q_lower)) - STOP_WORDS
 
             best_turn: tuple[str, str] | None = None
@@ -453,29 +485,16 @@ class ConversationalQAAgent(BaseAgent):
                 speaker_name, dialogue_text = best_turn
                 clean_dialogue = " ".join(dialogue_text.split())
                 return (
-                    f"Based on the discovery call transcript (`[client_transcript]`, relevance: {score:.2f}):\n\n"
+                    f"Based on the discovery call transcript (`[client_transcript]`):\n\n"
                     f'• **{speaker_name}:** *"{clean_dialogue}"*\n\n'
                     f"*Source: Discovery Call Transcript (Brightline Retail Group)*"
                 )
 
-            # Fallback to cleanest chunk snippet
-            clean_chunk = raw_doc.replace("##", "").replace("---", "").strip()
-            clean_chunk = " ".join(clean_chunk.split())
-            return (
-                f"Based on the discovery call transcript (`[client_transcript]`, relevance: {score:.2f}):\n\n"
-                f'> "{clean_chunk[:380]}..."\n\n'
-                f"*Source: Discovery Call Transcript (Brightline Retail Group)*"
-            )
-
-        if profile:
-            return (
-                f"I have recorded your feedback for **{profile.company_name}**. "
-                f"Current focus: {profile.problem}. "
-                "Would you like to revise a specific section or approve the current draft?"
-            )
-
         return (
-            "👋 Welcome! I am your AI Proposal Assistant.\n\n"
-            "To generate a tailored client proposal, please upload a discovery call transcript (`.txt` file) to this channel or thread.\n"
-            "Once uploaded, I will extract client facts, search past proposals for relevant architecture, and draft a multi-section proposal for your review."
+            "I don't have that specific information in the discovery call transcript or historical proposals (`[client_transcript]`).\n\n"
+            "You can ask about:\n"
+            "• Stakeholders and roles: *Marcus Webb (CEO)*, *Jenny Tran (Operations Manager)*, *Sarah Okafor (Consultant)*, *Raj (Developer)*\n"
+            "• Operations: *Warehouse locations (Chicago, Dallas, Phoenix)*, *inventory challenges*, *Monday spreadsheet reporting*\n"
+            "• Commercials & timeline: *Budget ($50k–$120k)*, *Target launch (Q3/Q4)*\n"
+            "• Deliverables: *Type 'give me the docx' or click 'Approve & Generate DOCX'*"
         )

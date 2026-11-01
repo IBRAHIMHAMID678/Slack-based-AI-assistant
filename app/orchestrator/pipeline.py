@@ -486,10 +486,35 @@ class ProposalOrchestrator:
                 return rev_answer
 
             # Check if user requested approval via chat message
-            if any(
-                w in message_text.lower()
-                for w in ["approve", "generate docx", "deliver docx", "finalize docx"]
-            ):
+            docx_approval_triggers = [
+                "approve",
+                "generate docx",
+                "deliver docx",
+                "finalize docx",
+                "give me the docx",
+                "give me docx",
+                "get docx",
+                "get the docx",
+                "send docx",
+                "send the docx",
+                "download docx",
+                "download the docx",
+                "export docx",
+                "export the docx",
+                "where is the docx",
+                "deliver the proposal",
+                "download proposal",
+                "send proposal docx",
+                "the docx",
+                "provide docx",
+                "want the docx",
+            ]
+            msg_lower_clean = message_text.lower().strip()
+            is_docx_request = (
+                any(w in msg_lower_clean for w in docx_approval_triggers)
+                or ("docx" in msg_lower_clean and any(v in msg_lower_clean for v in ["give", "get", "send", "download", "deliver", "want", "provide", "need"]))
+            )
+            if is_docx_request:
                 from app.db.models import Draft, Session
 
                 draft_repo = DraftRepository(db)

@@ -220,3 +220,4 @@ def create_decision_doc(output_path: Path):
 if __name__ == "__main__":
     out_file = Path("C:/Users/dell/Downloads/Architecture_Decision_Document.docx")
     create_decision_doc(out_file)
+
