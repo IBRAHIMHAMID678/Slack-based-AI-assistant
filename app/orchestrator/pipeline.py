@@ -197,7 +197,8 @@ class ProposalOrchestrator:
                     profile = prof_repo.get_by_session(session.session_id)
 
             if not latest_draft:
-                from app.db.models import Draft as DraftModel, Session as SessionModel
+                from app.db.models import Draft as DraftModel
+                from app.db.models import Session as SessionModel
 
                 fallback_draft = (
                     db.query(DraftModel)
@@ -287,7 +288,8 @@ class ProposalOrchestrator:
                     stmt_sess = target_draft.session
 
             if not stmt_sess:
-                from app.db.models import Draft as DraftModel, Session as SessionModel
+                from app.db.models import Draft as DraftModel
+                from app.db.models import Session as SessionModel
 
                 target_draft = (
                     db.query(DraftModel)
