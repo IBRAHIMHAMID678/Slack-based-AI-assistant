@@ -5,6 +5,7 @@ with strict provenance citations and gap placeholders.
 """
 
 from app.agents.base import BaseAgent, wrap_untrusted
+from app.config import settings
 from app.llm.client import complete
 from app.llm.schemas import (
     ClientProfileExtraction,
@@ -88,6 +89,24 @@ class WriterAgent(BaseAgent):
             {"role": "system", "content": self.system_prompt},
             {"role": "user", "content": user_content},
         ]
+
+        # In mock mode, enrich timeline if revision requested
+        if settings.is_mock_mode and section_key == "timeline":
+            detailed_content = (
+                current_content
+                + "\n\n"
+                + "Detailed Workstream Breakdown (Revised):\n"
+                + "• Sprint 1-2: Multi-site inventory discovery and schema alignment with Raj (from transcript).\n"
+                + "• Sprint 3-4: Event-driven synchronization middleware deployment for Chicago, Dallas, and Phoenix.\n"
+                + "• Sprint 5-6: QuickBooks and Shopify bi-directional connectors with automated exception logging.\n"
+                + "• Sprint 7-8: End-to-end UAT with Jenny Tran's warehouse operations team.\n"
+                + "• Sprint 9-10 (Target Q3): Staged warehouse cutover with fallback guarantee before Atlanta Q1 opening (from transcript)."
+            )
+            return DraftSectionSchema(
+                section_key="timeline",
+                title="Project Timeline & Phased Milestones",
+                content=detailed_content,
+            )
 
         # Use writer task with section-specific return
         result_plan: DraftPlanSchema = await complete(

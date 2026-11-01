@@ -208,3 +208,4 @@ The static corpus was verified clean in [`docs/INJECTION_AUDIT.md`](file:///docs
 ## License
 
 MIT License. Designed and built for high-reliability management consulting workflows.
+

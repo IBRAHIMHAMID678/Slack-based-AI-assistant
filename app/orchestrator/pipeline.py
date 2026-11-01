@@ -335,8 +335,15 @@ class ProposalOrchestrator:
                     thread_ts=stmt_sess.thread_ts,
                     text=(
                         f"✏️ *Section '{section_key}' updated to version {current_sec.version + 1 if current_sec else 2}!*\n"
-                        f"Surrounding sections remain unmodified. Click 'Approve' to re-render DOCX."
+                        f"Surrounding sections remain unmodified. Generating revised DOCX..."
                     ),
+                )
+                await self.handle_draft_approval(
+                    channel_id=stmt_sess.channel_id,
+                    thread_ts=stmt_sess.thread_ts,
+                    user_id=stmt_sess.user_id,
+                    client=client,
+                    session_id_override=session_id,
                 )
 
     async def handle_user_message(
@@ -371,6 +378,71 @@ class ProposalOrchestrator:
                     profile = channel_prof
 
             quotes = retrieve_transcript_quotes(session.session_id, message_text, top_k=2)
+
+            # Check if user requested a section revision via chat (e.g. 'make the timeline section more detailed')
+            msg_lower = message_text.lower()
+            revision_verbs = [
+                "make",
+                "revise",
+                "update",
+                "change",
+                "rewrite",
+                "more detailed",
+                "expand",
+                "modify",
+                "add to",
+            ]
+            is_question = any(
+                q in msg_lower
+                for q in [
+                    "what did",
+                    "what does",
+                    "who",
+                    "when",
+                    "why",
+                    "how",
+                    "did the client",
+                    "tell me about",
+                    "is there",
+                ]
+            )
+
+            section_alias_map = {
+                "timeline": ["timeline", "milestone", "schedule", "deadline", "duration"],
+                "budget": ["budget", "pricing", "cost", "commercial", "rates"],
+                "proposed_solution": [
+                    "solution",
+                    "architecture",
+                    "platform",
+                    "system",
+                    "technical",
+                ],
+                "executive_summary": ["summary", "executive"],
+                "next_steps": ["next step", "action plan", "kickoff", "immediate"],
+                "cover": ["cover", "title"],
+            }
+
+            detected_sec = None
+            if any(v in msg_lower for v in revision_verbs) and not is_question:
+                for sec_k, aliases in section_alias_map.items():
+                    if any(a in msg_lower for a in aliases):
+                        detected_sec = sec_k
+                        break
+
+            if detected_sec:
+                await self.handle_section_revision(
+                    user_id=user_id,
+                    section_key=detected_sec,
+                    revision_instructions=message_text,
+                    client=client,
+                    session_id_override=session.session_id,
+                )
+                rev_answer = (
+                    f"Section '{detected_sec}' revised based on your instructions!\n"
+                    f"Surrounding sections remain byte-identical. Revised DOCX generated and delivered."
+                )
+                msg_repo.add_message(session.session_id, "assistant", "assistant", rev_answer)
+                return rev_answer
 
             # Check if user requested approval via chat message
             if any(
