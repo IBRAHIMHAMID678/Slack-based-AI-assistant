@@ -1,0 +1,59 @@
+{
+  "company_name": "Brightline Retail Group",
+  "industry": "retail",
+  "problem": "Backend operations and inventory visibility across three warehouses (Chicago, Dallas, Phoenix) are disjointed, causing double-allocation of stock and daily phone coordination. Ops reporting is manual in spreadsheets taking 4-5 hours weekly.",
+  "goals": [
+    "All five locations (including upcoming Atlanta and Seattle) visible in one real-time dashboard",
+    "Eliminate daily inter-warehouse phone calls for stock verification",
+    "Automate weekly operations reporting to replace 4-5 hour manual spreadsheets",
+    "Deploy a user-friendly system operable by current ops staff without developer overhead",
+    "Preserve in-house developer Raj's custom legacy architecture work"
+  ],
+  "budget": "$50,000 target (board-approved range up to $120,000 with flexibility)",
+  "timeline": "Q3 target launch (approx 5 months) with Q4 confirmed fallback before Atlanta Q1 opening",
+  "stakeholders": [
+    "Marcus Webb (CEO, Brightline)",
+    "Jenny Tran (Operations Manager, Brightline)",
+    "Raj (In-house Developer, Brightline)",
+    "Sarah Okafor (Consultant)"
+  ],
+  "field_provenance": {
+    "company_name": {
+      "value": "Brightline Retail Group",
+      "source_quote": "Company: Brightline Retail Group",
+      "confidence": 1.0
+    },
+    "industry": {
+      "value": "retail",
+      "source_quote": "three warehouse locations... on Shopify for the direct-to-consumer side, that's maybe 20% of our volume",
+      "confidence": 0.95
+    },
+    "budget": {
+      "value": "$50,000 target with flexibility up to $120,000",
+      "source_quote": "We've set aside fifty thousand for this... Actually Marcus, I thought we discussed up to a hundred and twenty? The board approved a range, not a fixed number.",
+      "confidence": 0.85
+    },
+    "timeline": {
+      "value": "End of Q3 target with Q4 fallback",
+      "source_quote": "need the system stable by end of Q3 this year? That's roughly five months from now... Q4 is probably more realistic.",
+      "confidence": 0.9
+    }
+  },
+  "missing_fields": [
+    "Selected shipping software platform (not yet chosen — marked for future phase)",
+    "Detailed staff scheduling requirements (deprioritized by CEO for initial phase)"
+  ],
+  "ambiguities": [
+    {
+      "field": "budget",
+      "quote": "Marcus: We've set aside fifty thousand... Jenny: Actually Marcus, I thought we discussed up to a hundred and twenty? The board approved a range, not a fixed number.",
+      "reason": "Marcus advocates a strict $50,000 starting budget, whereas Jenny cites an approved board range up to $120,000. Marcus agreed $50k is the target with flexibility if justified."
+    },
+    {
+      "field": "timeline",
+      "quote": "Marcus: need the system stable by end of Q3 this year... Jenny: That might be tight. I've been saying Q4 is probably more realistic.",
+      "reason": "Marcus targets end of Q3 (5 months) to precede Atlanta opening, while Jenny considers Q4 the realistic landing window."
+    }
+  ]
+}
+
