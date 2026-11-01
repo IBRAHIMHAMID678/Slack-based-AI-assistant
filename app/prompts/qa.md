@@ -19,3 +19,4 @@ Return strictly valid JSON:
   "confidence": 0.95,
   "sources": ["proposal_manufacturing", "client_transcript"]
 }
+

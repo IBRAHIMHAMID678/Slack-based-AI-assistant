@@ -4,7 +4,10 @@ Connects Slack Bolt Socket Mode events (app mentions, DMs, file uploads,
 button actions, and modals) to the multi-agent pipeline orchestrator.
 """
 
+import time
 from typing import Any
+
+_PROCESSED_FILE_IDS: dict[str, float] = {}
 
 from slack_bolt.async_app import AsyncApp
 from slack_sdk.errors import SlackApiError
@@ -66,6 +69,17 @@ def register_slack_handlers(bolt_app: AsyncApp, orchestrator: Any) -> None:
         if not file_id:
             return
 
+        now = time.time()
+        # Clean up stale entries older than 5 minutes
+        stale_keys = [k for k, ts in _PROCESSED_FILE_IDS.items() if now - ts > 300.0]
+        for k in stale_keys:
+            _PROCESSED_FILE_IDS.pop(k, None)
+
+        if file_id in _PROCESSED_FILE_IDS and (now - _PROCESSED_FILE_IDS[file_id]) < 60.0:
+            logger.info("duplicate_file_shared_event_ignored", file_id=file_id)
+            return
+        _PROCESSED_FILE_IDS[file_id] = now
+
         try:
             info_res = await client.files_info(file=file_id)
             file_data = info_res.get("file", {})
@@ -99,10 +113,11 @@ def register_slack_handlers(bolt_app: AsyncApp, orchestrator: Any) -> None:
     @bolt_app.event("message")
     async def handle_message_events(event: dict[str, Any], say: Any, client: Any) -> None:
         """Handle incoming DM messages and thread replies."""
-        # Ignore bot messages or message edits
+        # Ignore bot messages, message edits, and file_share events (handled by file_shared)
         if event.get("bot_id") or event.get("subtype") in [
             "message_changed",
             "bot_message",
+            "file_share",
         ]:
             return
 
@@ -119,6 +134,17 @@ def register_slack_handlers(bolt_app: AsyncApp, orchestrator: Any) -> None:
         files = event.get("files", [])
         if files:
             for file_info in files:
+                f_id = file_info.get("id")
+                now = time.time()
+                if (
+                    f_id
+                    and f_id in _PROCESSED_FILE_IDS
+                    and (now - _PROCESSED_FILE_IDS[f_id]) < 60.0
+                ):
+                    logger.info("duplicate_file_in_message_ignored", file_id=f_id)
+                    continue
+                if f_id:
+                    _PROCESSED_FILE_IDS[f_id] = now
                 file_url = file_info.get("url_private_download")
                 filename = file_info.get("name", "transcript.txt")
                 if file_url:
