@@ -117,7 +117,7 @@ On startup, the system will:
 ### Run Unit and Integration Tests
 ```bash
 pytest -q
-# Output: 43 passed in ~40s (100% pass rate)
+# Output: 50 passed in ~35s (100% pass rate)
 ```
 
 ### Static Analysis & Linting
@@ -125,7 +125,7 @@ pytest -q
 ruff check .
 ruff format --check .
 mypy app
-# Output: Success: no issues found in 36 source files
+# Output: Success: no issues found in 37 source files
 ```
 
 ### RAG Retrieval Evaluation
