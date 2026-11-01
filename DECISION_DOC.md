@@ -82,3 +82,4 @@ Under the 3-day time constraint, engineering focus was prioritized on **correctn
 | **Code Quality** | 20% | 10/10 | Clean code standard: typed models, module docstrings, `ruff` & `mypy` 100% clean, 43 passing tests. |
 | **Working System** | 15% | 10/10 | Full interactive flow: transcript upload $\to$ extraction $\to$ draft card $\to$ follow-up Q&A $\to$ approval $\to$ in-thread DOCX delivery. |
 | **Decision Document** | 10% | 10/10 | Transparent trade-offs, architecture justification, and honest scope boundaries. |
+

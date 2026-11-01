@@ -29,41 +29,6 @@ A production-grade, grounded multi-agent AI system running inside **Slack** via 
 
 ---
 
-## System Architecture
-
-```mermaid
-flowchart TD
-    User([Slack User / Client Thread]) <-->|Socket Mode Events / Block Kit| SlackBolt[Slack Bolt Ingress]
-    SlackBolt <--> Orchestrator[Proposal Orchestrator]
-
-    subgraph State & Persistence
-        Orchestrator <--> SQLite[(SQLite WAL Database)]
-    end
-
-    subgraph RAG & Ingestion
-        Orchestrator <--> Chunker[Semantic Heading-Aware Chunker]
-        Chunker --> Chroma[(ChromaDB Vector Store)]
-        Chroma <--> BGE[BAAI/bge-small-en-v1.5 CPU]
-    end
-
-    subgraph Multi-Agent Pipeline
-        Orchestrator --> Intake[Intake Agent]
-        Intake --> Research[Research Agent]
-        Research <--> Chroma
-        Research --> Writer[Writer Agent]
-        Writer --> Critic[Critic Agent]
-        Critic -- If Issues Found --> Repair[Targeted Repair Loop]
-        Repair --> Writer
-    end
-
-    subgraph Document Delivery
-        Orchestrator --> DOCX[python-docx Renderer]
-        DOCX -->|files_upload_v2| SlackBolt
-    end
-```
-
----
-
 ## Repository Structure
 
 ```text
@@ -83,12 +48,6 @@ Slack-based-AI-assistant/
 │   └── main.py             # FastAPI server entry point and Bolt runner
 ├── data/
 │   └── proposals/          # 10 historical proposal files (.txt)
-├── docs/
-│   ├── ARCHITECTURE.md     # In-depth system architecture & Mermaid diagrams
-│   ├── EVAL.md             # Self-evaluation rubric and verification audit
-│   ├── INJECTION_AUDIT.md  # Corpus security audit and runtime defense specs
-│   ├── RETRIEVAL_EVAL.md   # Retrieval benchmark report (100% Recall@5, 1.0 MRR)
-│   └── SLACK_SETUP.md      # Step-by-step Slack app configuration guide
 ├── scripts/
 │   ├── eval_retrieval.py   # RAG retrieval evaluation benchmark
 │   ├── ingest.py           # Standalone proposal ingestion CLI
@@ -100,9 +59,10 @@ Slack-based-AI-assistant/
 │   └── unit/               # Persistence, chunker, docx, and agent unit tests
 ├── .env.example            # Environment variable template
 ├── .gitignore              # Ignores .env, *.db, chroma_db/, out/, caches
-├── pyproject.toml          # Poetry / Pip dependencies and tool configurations
+├── pyproject.toml          # Tool configurations
+├── requirements.txt        # Python package dependencies
 ├── README.md               # Project documentation
-└── STATUS.md               # Execution status checkpoints and milestones
+└── DECISION_DOC.md         # Engineering trade-offs and decision record
 ```
 
 ---
@@ -118,7 +78,7 @@ Clone the repository and install dependencies:
 ```bash
 git clone https://github.com/IBRAHIMHAMID678/Slack-based-AI-assistant.git
 cd Slack-based-AI-assistant
-pip install -r requirements.txt  # Or pip install -e .
+pip install -r requirements.txt
 ```
 
 ### 3. Environment Configuration
@@ -157,7 +117,7 @@ On startup, the system will:
 ### Run Unit and Integration Tests
 ```bash
 pytest -q
-# Output: 43 passed in ~32s (100% pass rate)
+# Output: 43 passed in ~40s (100% pass rate)
 ```
 
 ### Static Analysis & Linting
@@ -191,21 +151,10 @@ python scripts/smoke.py
 2. **Review Extracted Profile:** The bot posts a Block Kit **Client Profile Card** outlining goals, constraints, missing fields, and detected ambiguities.
 3. **Review Proposal Draft:** The bot posts an interactive **Draft Review Card** with critic validation status and included sections.
 4. **Approve & Download:** Click **"✅ Approve & Generate DOCX"** (or type `"approve"` in thread) to deliver the generated document.
-5. **Revise Sections:** Click **"✏️ Regenerate Section"** to open a modal and rewrite any individual section while keeping surrounding sections byte-identical.
-
----
-
-## Security & Defense-in-Depth
-
-The static corpus was verified clean in [`docs/INJECTION_AUDIT.md`](file:///docs/INJECTION_AUDIT.md). At runtime, all external content is treated as untrusted:
-- Data boundaries: `<<<BEGIN_UNTRUSTED_DOC>>> ... <<<END_UNTRUSTED_DOC>>>`
-- Control and zero-width characters stripped at ingestion.
-- Hard token length bounds with `[TRUNCATED]` markers.
-- System directives isolated in system prompts only.
+5. **Revise Sections:** Click **"✏️ Regenerate Section"** (or type `"make the timeline section more detailed"`) to update any individual section while keeping surrounding sections byte-identical.
 
 ---
 
 ## License
 
 MIT License. Designed and built for high-reliability management consulting workflows.
-
