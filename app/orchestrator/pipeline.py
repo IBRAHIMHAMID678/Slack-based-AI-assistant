@@ -82,6 +82,17 @@ class ProposalOrchestrator:
                 raw_text = enforce_transcript_bounds(raw_text or "")
 
                 sha256 = compute_sha256(raw_text)
+
+                # Deduplicate: if this exact transcript content was already uploaded to this session, skip duplicate processing
+                existing_transcripts = trans_repo.get_by_session(session.session_id)
+                if any(t.sha256_hash == sha256 for t in existing_transcripts):
+                    logger.info(
+                        "duplicate_transcript_upload_skipped",
+                        sha256=sha256,
+                        session_id=session.session_id,
+                    )
+                    return
+
                 trans_repo.add_transcript(session.session_id, filename, raw_text, sha256)
                 ingest_runtime_transcript(session.session_id, raw_text, filename)
 
