@@ -1,0 +1,12 @@
+{
+  "pass": false,
+  "issues": [
+    {
+      "section": "timeline",
+      "issue_type": "invented_number",
+      "quote": "Go-live will take exactly 3.5 weeks with 14 automated test suites.",
+      "fix": "Ground timeline in confirmed transcript figures: Q3 target or Q4 fallback."
+    }
+  ]
+}
+

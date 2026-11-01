@@ -1,0 +1,42 @@
+{
+  "plan_reasoning": "Structured to address Brightline's primary pain point of multi-warehouse inventory fragmentation, respecting the existing custom system built by Raj and integrating directly with QuickBooks and Shopify direct-to-consumer volume. Emphasizes real-time visibility across current Chicago, Dallas, Phoenix sites and upcoming Atlanta/Seattle expansions.",
+  "sections": [
+    {
+      "section_key": "cover",
+      "title": "Cover & Engagement Overview",
+      "content": "PROPOSAL: UNIFIED INVENTORY VISIBILITY AND MULTI-WAREHOUSE SYNCHRONISATION PLATFORM\nPrepared for: Brightline Retail Group\nKey Stakeholders: Marcus Webb (CEO), Jenny Tran (Operations Manager)\nAuthor: Sarah Okafor, Senior Operations Consultant\nDate: May 2026\nStatus: Initial Discovery Draft",
+      "citations": ["(from transcript)"]
+    },
+    {
+      "section_key": "executive_summary",
+      "title": "Executive Summary",
+      "content": "Brightline Retail Group operates three active warehouse facilities across Chicago, Dallas, and Phoenix with 140 staff, serving wholesale and direct-to-consumer channels (from transcript). Rapid growth and impending site expansions into Atlanta and Seattle have exposed critical operational bottlenecks in the 2019 in-house inventory tooling. Daily telephone inquiries between sites and manual spreadsheet compilation (4-5 hours every Monday) have led to painful stock double-allocations (from transcript).\n\nThis proposal establishes a unified, real-time inventory visibility platform. Rather than discarding existing infrastructure, our approach builds a high-reliability synchronization layer around Raj's current system, integrates seamlessly with QuickBooks and Shopify, and establishes automated operational reporting to eliminate spreadsheet toil.",
+      "citations": ["(from transcript)", "(indicative, based on similar engagements — proposal_retail)"]
+    },
+    {
+      "section_key": "proposed_solution",
+      "title": "Proposed Solution & System Architecture",
+      "content": "1. Multi-Warehouse Synchronization Engine: A resilient event-driven middleware connecting Chicago, Dallas, and Phoenix into a single live inventory ledger (from transcript). Expands seamlessly to accommodate Atlanta and Seattle without architectural refactoring.\n\n2. Modernized Operations Dashboard: Intuitive, web-based control center tailored specifically for Jenny's warehouse floor operations team, requiring zero developer intervention for daily stock inquiries, allocations, and cross-warehouse rebalancing.\n\n3. Core Integrations:\n- QuickBooks Core Accounting: Automated bidirectional sync for financial reconciliation and asset valuation (from transcript).\n- Shopify D2C Channel: Real-time stock decrementing handling 20% consumer volume (from transcript).\n- Shipping Carrier Software: Architecture accommodates pluggable carrier APIs once carrier selection is finalized (indicative, based on similar engagements — proposal_fleet).\n\n4. Legacy Architecture Preservation: Our engineers will partner with Raj to wrap existing custom endpoints rather than conducting a high-risk 'rip-and-replace' migration (from transcript).",
+      "citations": ["(from transcript)", "(indicative, based on similar engagements — proposal_fleet)"]
+    },
+    {
+      "section_key": "timeline",
+      "title": "Project Timeline & Phased Milestones",
+      "content": "Target Launch: End of Q3 (approximately 5 months from commencement) (from transcript).\nOperational Fallback Buffer: End of Q4, providing a hardened guarantee ahead of the Atlanta facility opening in Q1 (from transcript).\n\n- Month 1: Discovery, Architecture Blueprint, and Integration Scoping with Raj.\n- Month 2: Core Real-Time Synchronization Engine & Warehouse Connectors (Chicago, Dallas, Phoenix).\n- Month 3: QuickBooks & Shopify Integration, Automated Operations Reporting Pipeline.\n- Month 4: User Acceptance Testing with Warehouse Ops, Parallel Data Reconciliation (indicative, based on similar engagements — proposal_fintech).\n- Month 5 (Target Q3 Go-Live): Staged Deployment, Staff Training, and Dashboard Cutover.\n- Month 6 (Contingency Buffer Q4): Hardening, Performance Tuning, and Atlanta Expansion Readiness.",
+      "citations": ["(from transcript)", "(indicative, based on similar engagements — proposal_fintech)"]
+    },
+    {
+      "section_key": "budget_range",
+      "title": "Budget & Commercial Framework",
+      "content": "Commercial structure reflects Marcus's starting target of $50,000 (from transcript) alongside an expanded scope option aligned with the board-approved $120,000 flexibility range (from transcript):\n\nTier 1: Core Visibility & Sync ($50,000 Target Scope - from transcript)\n- Multi-warehouse sync layer (3 sites)\n- QuickBooks & Shopify real-time connectors\n- Automated Monday ops report generation\n- Ops dashboard for inventory allocations\n\nTier 2: Enterprise Expansion & Scalability Package ($95,000 - $120,000 Indicative - based on similar engagements — proposal_retail2)\n- Automated multi-carrier shipping routing when carrier selected\n- Native predictive stock rebalancing across regional hubs\n- Advanced staff scheduling module (Timeline: not confirmed on the call — to be agreed)",
+      "citations": ["(from transcript)", "(indicative, based on similar engagements — proposal_retail2)"]
+    },
+    {
+      "section_key": "next_steps",
+      "title": "Next Steps & Immediate Action Plan",
+      "content": "1. Review & Approval: Finalize commercial tier and milestone commitments with Brightline executive team.\n2. Technical Scoping Session: Half-day technical review with Raj to audit database schemas and existing API endpoints.\n3. Environment Setup: Provision secure sandbox infrastructure and establish read-only connectors.\n4. Formal Kickoff: Target kickoff within 10 business days following agreement sign-off.",
+      "citations": ["(from transcript)"]
+    }
+  ]
+}
+
